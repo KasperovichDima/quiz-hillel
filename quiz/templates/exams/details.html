@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Описание теста
+{% endblock %}
+
+{% block header %}
+    Тест: {{ exam.title }}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <td>Описание</td>
+                            <td>{{ exam.description }}</td>
+                        </tr>
+                        <tr>
+                            <td>Кол-во вопросов</td>
+                            <td>{{ exam.question_count }}</td>
+                        </tr>
+                        <tr>
+                            <td>Кол-во запусков</td>
+                            <td>{{ exam.results.count }}</td>
+                        </tr>
+                        <tr>
+                            <td>Лучший результат</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>Кто получил лучший результат</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td>Последний запуск</td>
+                            <td>N/A</td>
+                        </tr>
+                    </tbody>
+              </table>
+            </div>
+        </div>
+        <div class="row">
+            <form action="{% url 'quizzes:result_create' exam.uuid %}" method="post"
+                  class="d-flex justify-content-center mt-5 mb-2">
+                {% csrf_token %}
+                <input class="btn btn-success m-3" type="submit" value="START">
+                <a class="btn btn-primary m-3" href="{% url 'quizzes:list' %}">Вернуться к списку тестов</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
