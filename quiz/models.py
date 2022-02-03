@@ -88,11 +88,18 @@ class Result(BaseModel):
 
         if order_number == question.exam.question_count():
             self.state = self.STATE.FINISHED
-
+            self.user.update_rating(self.test_points())
         self.save()
 
     def success_rate(self):
-        return int(self.num_correct_answers / self.current_order_number * 100)
+        return f'{int(self.num_correct_answers / self.exam.question_count() * 100)}%'
 
     def test_time(self):
-        return self.create_timestamp - self.update_timestamp
+        return self.update_timestamp - self.create_timestamp
+
+    def test_points(self):
+        points = self.num_correct_answers - self.num_incorrect_answers
+        if points > 0:
+            return points
+        else:
+            return 0
