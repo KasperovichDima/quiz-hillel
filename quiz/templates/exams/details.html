@@ -20,7 +20,7 @@
                         </tr>
                         <tr>
                             <td>Кол-во вопросов</td>
-                            <td>{{ exam.questions.count }}</td>
+                            <td>{{ exam.question_count }}</td>
                         </tr>
                         <tr>
                             <td>Кол-во запусков</td>
@@ -43,7 +43,8 @@
             </div>
         </div>
         <div class="row">
-            <form method="post" class="d-flex justify-content-center mt-5 mb-2">
+            <form action="{% url 'quizzes:result_create' exam.uuid %}" method="post"
+                  class="d-flex justify-content-center mt-5 mb-2">
                 {% csrf_token %}
                 <input class="btn btn-success m-3" type="submit" value="START">
                 <a class="btn btn-primary m-3" href="{% url 'quizzes:list' %}">Вернуться к списку тестов</a>

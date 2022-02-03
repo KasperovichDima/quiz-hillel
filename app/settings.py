@@ -150,3 +150,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 EMAIL_PORT = 1025
 
 CKEDITOR_UPLOAD_PATH = 'upload/'
+
+LOGIN_URL = '/account/login/'

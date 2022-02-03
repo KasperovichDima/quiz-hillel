@@ -6,6 +6,9 @@ from django.db import models
 
 
 class Exam(BaseModel):
+    QUESTION_MIN_LIMIT = 3
+    QUESTION_MAX_LIMIT = 20
+
     class LEVEL(models.IntegerChoices):
         BASIC = 0, 'Basic'
         MIDDLE = 1, 'Middle'
@@ -16,12 +19,15 @@ class Exam(BaseModel):
     description = models.TextField(null=True, blank=True)
     level = models.PositiveSmallIntegerField(choices=LEVEL.choices, default=LEVEL.BASIC)
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         verbose_name = 'Exam'
         verbose_name_plural = 'Exams'
+
+    def __str__(self):
+        return self.title
+
+    def question_count(self):
+        return self.questions.count()
 
 
 class Question(BaseModel):
@@ -30,12 +36,12 @@ class Question(BaseModel):
     text = models.CharField(max_length=2048)
     image = models.ImageField(null=True, blank=True, upload_to='questions/')
 
-    def __str__(self):
-        return self.text
-
     class Meta:
         verbose_name = 'Question'
         verbose_name_plural = 'Questions'
+
+    def __str__(self):
+        return self.text
 
 
 class Choice(models.Model):
@@ -67,3 +73,18 @@ class Result(BaseModel):
     class Meta:
         verbose_name = 'Result'
         verbose_name_plural = 'Results'
+
+    def update_result(self, order_number, question, selected_choices):
+        correct_choice = [choice.is_correct for choice in question.choices.all()]
+        correct_answer = True
+        for z in zip(selected_choices, correct_choice):
+            correct_answer &= (z[0] == z[1])
+
+        self.num_correct_answers += int(correct_answer)
+        self.num_incorrect_answers += 1 - int(correct_answer)
+        self.current_order_number = order_number
+
+        if order_number == question.exam.question_count():
+            self.state = self.STATE.FINISHED
+
+        self.save()
