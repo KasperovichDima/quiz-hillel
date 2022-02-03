@@ -27,6 +27,19 @@ class QuestionInlineFormset(BaseInlineFormSet):
                 f'до {self.instance.QUESTION_MAX_LIMIT} включительно'
             )
 
+        for iteration_num, form in enumerate(self.forms):
+            quest_num = form.cleaned_data['order_num']
+
+            if iteration_num == 0 and quest_num != self.instance.QUESTION_FIRST_NUMBER:
+                raise ValidationError(f'Номер первого вопроса должен быть = {self.instance.QUESTION_FIRST_NUMBER}')
+
+            elif quest_num > len(self.forms):
+                raise ValidationError('Номер вопроса не может больше кол-ва вопросов в тесте')
+
+            elif quest_num != iteration_num + self.instance.QUESTION_NUM_STEP:
+                    raise ValidationError(
+                        f'Номер вопроса должен быть больше, чем номер предыдущего на {self.instance.QUESTION_NUM_STEP}')
+
 
 class ChoiceForm(ModelForm):
     is_selected = forms.BooleanField(required=False)

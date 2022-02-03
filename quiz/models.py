@@ -8,6 +8,8 @@ from django.db import models
 class Exam(BaseModel):
     QUESTION_MIN_LIMIT = 3
     QUESTION_MAX_LIMIT = 20
+    QUESTION_FIRST_NUMBER = 1
+    QUESTION_NUM_STEP = 1
 
     class LEVEL(models.IntegerChoices):
         BASIC = 0, 'Basic'
@@ -88,3 +90,9 @@ class Result(BaseModel):
             self.state = self.STATE.FINISHED
 
         self.save()
+
+    def success_rate(self):
+        return int(self.num_correct_answers / self.current_order_number * 100)
+
+    def test_time(self):
+        return self.create_timestamp - self.update_timestamp
