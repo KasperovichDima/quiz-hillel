@@ -68,7 +68,7 @@ class Result(BaseModel):
     exam = models.ForeignKey(Exam, related_name='results', on_delete=models.CASCADE)
     state = models.PositiveSmallIntegerField(default=STATE.IN_PROGRESS, choices=STATE.choices)
     uuid = models.UUIDField(default=generate_uuid, db_index=True, unique=True)
-    current_order_number = models.PositiveSmallIntegerField(null=True)
+    current_order_number = models.PositiveSmallIntegerField(default=0)
     num_correct_answers = models.PositiveSmallIntegerField(default=0)
     num_incorrect_answers = models.PositiveSmallIntegerField(default=0)
 
@@ -98,8 +98,4 @@ class Result(BaseModel):
         return self.update_timestamp - self.create_timestamp
 
     def test_points(self):
-        points = self.num_correct_answers - self.num_incorrect_answers
-        if points > 0:
-            return points
-        else:
-            return 0
+        return max(0, self.num_correct_answers - self.num_incorrect_answers)
