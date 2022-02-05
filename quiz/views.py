@@ -1,3 +1,5 @@
+from account.models import CustomUser
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -111,3 +113,10 @@ class ExamResultDetailView(LoginRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         uuid = self.kwargs.get('res_uuid')
         return self.get_queryset().get(uuid=uuid)
+
+
+class RatingView(LoginRequiredMixin, ListView):
+    model = CustomUser
+    template_name = 'results/rating.html'
+    context_object_name = 'users'
+    queryset = model.objects.all().order_by('-rating')

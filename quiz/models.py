@@ -8,6 +8,8 @@ from django.db import models
 class Exam(BaseModel):
     QUESTION_MIN_LIMIT = 3
     QUESTION_MAX_LIMIT = 20
+    QUESTION_FIRST_NUMBER = 1
+    QUESTION_NUM_STEP = 1
 
     class LEVEL(models.IntegerChoices):
         BASIC = 0, 'Basic'
@@ -86,5 +88,18 @@ class Result(BaseModel):
 
         if order_number == question.exam.question_count():
             self.state = self.STATE.FINISHED
-
+            self.user.update_rating(self.test_points())
         self.save()
+
+    def success_rate(self):
+        return f'{int(self.num_correct_answers / self.exam.question_count() * 100)}%'
+
+    def test_time(self):
+        return self.update_timestamp - self.create_timestamp
+
+    def test_points(self):
+        points = self.num_correct_answers - self.num_incorrect_answers
+        if points > 0:
+            return points
+        else:
+            return 0
