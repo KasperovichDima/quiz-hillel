@@ -92,7 +92,7 @@ class Result(BaseModel):
         self.save()
 
     def success_rate(self):
-        return f'{int(self.num_correct_answers / self.exam.question_count() * 100)}%'
+        return int(self.num_correct_answers / self.exam.question_count() * 100)
 
     def test_time(self):
         return self.update_timestamp - self.create_timestamp
