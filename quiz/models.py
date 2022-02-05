@@ -1,9 +1,15 @@
+from core.models import BaseModel
+from core.utils import generate_uuid
+
+from django.contrib.auth import get_user_model
 from django.db import models
 
 
 class Exam(BaseModel):
     QUESTION_MIN_LIMIT = 3
     QUESTION_MAX_LIMIT = 20
+    QUESTION_FIRST_NUMBER = 1
+    QUESTION_NUM_STEP = 1
 
     class LEVEL(models.IntegerChoices):
         BASIC = 0, 'Basic'
@@ -62,7 +68,7 @@ class Result(BaseModel):
     exam = models.ForeignKey(Exam, related_name='results', on_delete=models.CASCADE)
     state = models.PositiveSmallIntegerField(default=STATE.IN_PROGRESS, choices=STATE.choices)
     uuid = models.UUIDField(default=generate_uuid, db_index=True, unique=True)
-    current_order_number = models.PositiveSmallIntegerField(null=True)
+    current_order_number = models.PositiveSmallIntegerField(default=0)
     num_correct_answers = models.PositiveSmallIntegerField(default=0)
     num_incorrect_answers = models.PositiveSmallIntegerField(default=0)
 
@@ -82,6 +88,14 @@ class Result(BaseModel):
 
         if order_number == question.exam.question_count():
             self.state = self.STATE.FINISHED
-
+            self.user.update_rating(self.test_points())
         self.save()
 
+    def success_rate(self):
+        return f'{int(self.num_correct_answers / self.exam.question_count() * 100)}%'
+
+    def test_time(self):
+        return self.update_timestamp - self.create_timestamp
+
+    def test_points(self):
+        return max(0, self.num_correct_answers - self.num_incorrect_answers)
