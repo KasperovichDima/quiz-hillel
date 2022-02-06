@@ -31,6 +31,20 @@ class Exam(BaseModel):
     def question_count(self):
         return self.questions.count()
 
+    def get_correct_perc_by_user(self, user):
+        '''
+        Вычисляет процент правильных ответов пользователя
+        за все попытки по данному тесту
+        :param user: Текущий пользователь
+        :return: процент правильных ответов (int)
+        '''
+        exam_results = Result.objects.filter(user=user, exam=self)
+        correct_num = total_num = 0
+        for res in exam_results:
+            correct_num += res.num_correct_answers
+            total_num += res.num_incorrect_answers+res.num_correct_answers
+        return correct_num * 100 // total_num
+
 
 class Question(BaseModel):
     exam = models.ForeignKey(Exam, related_name='questions', on_delete=models.CASCADE)
@@ -99,3 +113,7 @@ class Result(BaseModel):
 
     def test_points(self):
         return max(0, self.num_correct_answers - self.num_incorrect_answers)
+
+    # def result_by_user_and_exam(self, user, exam):
+    #     results = self.objects.fetch(user=user, exam=exam)
+

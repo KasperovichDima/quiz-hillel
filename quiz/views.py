@@ -133,6 +133,13 @@ class ExamResultDetailView(LoginRequiredMixin, DetailView):
         uuid = self.kwargs.get('res_uuid')
         return self.get_queryset().get(uuid=uuid)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        exam = self.get_object().exam
+        correct_perc: int = exam.get_correct_perc_by_user(self.request.user)
+        context['correct_perc'] = correct_perc
+        return context
+
 
 class RatingView(LoginRequiredMixin, ListView):
     model = CustomUser

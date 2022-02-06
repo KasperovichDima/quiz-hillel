@@ -42,16 +42,22 @@
                     <td>Набрано баллов</td>
                     <td>{{ result.test_points }}</td>
                 </tr>
+                <tr>
+                    <td>Процент правильных ответов за все попытки по даному тесту:</td>
+                    <td>{{ correct_perc }}%</td>
+                </tr>
                 </tbody>
             </table>
             <p align="center">Процентное соотношние правильных и неправильных ответов</p>
             <div class="progress">
                 <div class="progress-bar bg-success" role="progressbar" style="width: {{ result.success_rate }}%"
                      aria-valuenow="{{ result.success_rate }}" aria-valuemin="0"
-                     aria-valuemax="100">{{ result.success_rate }}%</div>
+                     aria-valuemax="100">{{ result.success_rate }}%
+                </div>
                 <div class="progress-bar bg-danger" role="progressbar"
                      style="width: {% expression '100-%1' result.success_rate %}%" aria-valuenow="15" aria-valuemin="0"
-                     aria-valuemax="100">{% expression '100-%1' result.success_rate %}%</div>
+                     aria-valuemax="100">{% expression '100-%1' result.success_rate %}%
+                </div>
             </div>
         </div>
     </div>
