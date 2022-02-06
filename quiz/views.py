@@ -1,6 +1,7 @@
 from account.models import CustomUser
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
@@ -89,6 +90,14 @@ class ExamResultQuestionView(LoginRequiredMixin, UpdateView):
         )
         choices = ChoicesFormSet(data=request.POST)
         selected_choices = ['is_selected' in form.changed_data for form in choices.forms]
+
+        # обрабатываем ситуацию, когда пользователь отметил все ответы, или ни одного
+        if not (0 < sum(selected_choices) < len(choices)):
+            messages.warning(request, 'Нельзя выбирать все ответы одновременно или ни одного')
+            choices = ChoicesFormSet(queryset=question.choices.all())
+            return render(request, 'exams/question.html',
+                          context={'question': question, 'choices': choices})
+
         result.update_result(result.current_order_number + 1, question, selected_choices)
 
         if result.state == Result.STATE.FINISHED:
