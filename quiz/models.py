@@ -113,7 +113,3 @@ class Result(BaseModel):
 
     def test_points(self):
         return max(0, self.num_correct_answers - self.num_incorrect_answers)
-
-    # def result_by_user_and_exam(self, user, exam):
-    #     results = self.objects.fetch(user=user, exam=exam)
-

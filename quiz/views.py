@@ -1,11 +1,11 @@
 from account.models import CustomUser
 
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.views.generic.list import MultipleObjectMixin
 
 from quiz.forms import ChoicesFormSet
@@ -173,7 +173,7 @@ class ExamResultUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class ExamResultDeleteView(DeleteView):
-    template_name ='results/delete.html'
+    template_name = 'results/delete.html'
     model = Result
     context_object_name = 'result'
 
@@ -182,4 +182,3 @@ class ExamResultDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('quizzes:details', kwargs={'uuid': self.kwargs['uuid']})
-

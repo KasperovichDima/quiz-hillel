@@ -6,11 +6,14 @@ register = template.Library()
 def negative_value(value):
     return -value
 
+
 def multi(value, arg):
     return value * arg
 
+
 def dived(value, arg):
     return value // arg
+
 
 def expression(value, *args):
     for idx, arg in enumerate(args, 1):
