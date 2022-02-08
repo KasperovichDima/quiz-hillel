@@ -27,5 +27,4 @@ def expression(value, *args):
 register.filter('negative', negative_value)
 register.filter('multi', multi)
 register.filter('dived', dived)
-
 register.simple_tag(func=expression, name='expression')

@@ -1,10 +1,11 @@
 from account.models import CustomUser
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.views.generic.list import MultipleObjectMixin
 
 from quiz.forms import ChoicesFormSet
@@ -89,6 +90,14 @@ class ExamResultQuestionView(LoginRequiredMixin, UpdateView):
         )
         choices = ChoicesFormSet(data=request.POST)
         selected_choices = ['is_selected' in form.changed_data for form in choices.forms]
+
+        # обрабатываем ситуацию, когда пользователь отметил все ответы, или ни одного
+        if not (0 < sum(selected_choices) < len(choices)):
+            messages.warning(request, 'Нельзя выбирать все ответы одновременно или ни одного')
+            choices = ChoicesFormSet(queryset=question.choices.all())
+            return render(request, 'exams/question.html',
+                          context={'question': question, 'choices': choices})
+
         result.update_result(result.current_order_number + 1, question, selected_choices)
 
         if result.state == Result.STATE.FINISHED:
@@ -124,6 +133,13 @@ class ExamResultDetailView(LoginRequiredMixin, DetailView):
         uuid = self.kwargs.get('res_uuid')
         return self.get_queryset().get(uuid=uuid)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        exam = self.get_object().exam
+        correct_perc: int = exam.get_correct_perc_by_user(self.request.user)
+        context['correct_perc'] = correct_perc
+        return context
+
 
 class RatingView(LoginRequiredMixin, ListView):
     model = CustomUser
@@ -154,3 +170,15 @@ class ExamResultUpdateView(LoginRequiredMixin, UpdateView):
                 }
             )
         )
+
+
+class ExamResultDeleteView(DeleteView):
+    template_name = 'results/delete.html'
+    model = Result
+    context_object_name = 'result'
+
+    def get_object(self, queryset=None):
+        return Result.objects.get(uuid=self.kwargs['res_uuid'])
+
+    def get_success_url(self):
+        return reverse_lazy('quizzes:details', kwargs={'uuid': self.kwargs['uuid']})
